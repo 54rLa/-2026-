@@ -135,17 +135,17 @@ body.dark-mode {
   opacity: 0;
 }
 
-/* 流星尾巴 - 向右上方延伸（移動方向的後方） */
+/* 流星尾巴 - 從頭部向右上方延伸 */
 .shooting-star::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 100%;
+  left: 100%;
   transform: translateY(-50%) rotate(-45deg);
-  transform-origin: right center;
+  transform-origin: left center;
   width: 100px;
   height: 2px;
-  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(200, 200, 255, 0.4), transparent);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(200, 200, 255, 0.4), transparent);
 }
 
 @keyframes shoot {
