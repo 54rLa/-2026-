@@ -2,8 +2,8 @@ import gsap from 'gsap';
 import confetti from 'canvas-confetti';
 
 // DOM Elements
-const giftBox = document.getElementById('giftBox');
-const giftContainer = document.querySelector('.gift-container');
+const portal = document.getElementById('portal');
+const portalContainer = document.getElementById('portalContainer');
 const scene1 = document.getElementById('scene1');
 const scene2 = document.getElementById('scene2');
 const letterLines = document.querySelectorAll('.letter-line');
@@ -76,7 +76,7 @@ function startShootingStars() {
   const scheduleNext = () => {
     // 密集模式：1-3秒，普通模式：3-8秒
     const delay = shootingStarIntense
-      ? 800 + Math.random() * 2000
+      ? 200 + Math.random() * 2000
       : 3000 + Math.random() * 5000;
     setTimeout(() => {
       createShootingStar();
@@ -167,19 +167,19 @@ function triggerConfetti() {
 }
 
 /**
- * 場景轉換：從禮物盒到信件
+ * 場景轉換：穿越傳送門進入宇宙
  */
 function transitionToLetter() {
   const tl = gsap.timeline();
 
-  // 禮物盒打開動畫
-  giftBox.classList.add('opened');
+  // 傳送門穿越動畫
+  portal.classList.add('entering');
 
-  // 等待禮物盒動畫完成後轉換場景
+  // 等待穿越動畫完成後轉換場景
   tl.to(scene1, {
     opacity: 0,
-    duration: 0.8,
-    delay: 0.8,
+    duration: 1.2,
+    delay: 0.5,
     onComplete: () => {
       scene1.classList.remove('active');
       scene2.classList.add('active');
@@ -253,11 +253,11 @@ function animateLetterContent() {
 /**
  * 主要點擊事件處理
  */
-function handleGiftClick() {
+function handlePortalClick() {
   if (isAnimating) return;
   isAnimating = true;
 
-  // 同時觸發 confetti 和場景轉換
+  // 觸發 confetti 和場景轉換
   triggerConfetti();
   transitionToLetter();
 }
@@ -267,18 +267,18 @@ createStars();
 startShootingStars();
 
 // 事件綁定
-giftContainer.addEventListener('click', handleGiftClick);
-giftContainer.addEventListener('touchend', (e) => {
+portalContainer.addEventListener('click', handlePortalClick);
+portalContainer.addEventListener('touchend', (e) => {
   e.preventDefault();
-  handleGiftClick();
+  handlePortalClick();
 });
 
-// 初始動畫：禮物盒入場
-gsap.from(giftBox, {
+// 初始動畫：傳送門入場
+gsap.from(portal, {
   scale: 0,
-  rotation: -10,
-  duration: 0.8,
-  ease: 'back.out(1.7)',
+  rotation: -180,
+  duration: 1.2,
+  ease: 'back.out(1.4)',
   delay: 0.3
 });
 
@@ -286,5 +286,5 @@ gsap.from('.hint-text', {
   opacity: 0,
   y: 20,
   duration: 0.5,
-  delay: 1
+  delay: 1.2
 });
