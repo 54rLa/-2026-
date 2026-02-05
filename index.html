@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>給小寶貝的七夕驚喜 💕</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Starry Background -->
+        <div id="stars-container"></div>
+        <div id="shooting-stars"></div>
+
+        <!-- Scene 1: Gift Box -->
+        <section id="scene1" class="scene active">
+            <div class="gift-container">
+                <div class="gift-box" id="giftBox">
+                    <div class="gift-lid">
+                        <div class="gift-bow"></div>
+                    </div>
+                    <div class="gift-base"></div>
+                </div>
+                <p class="hint-text">點我 💝</p>
+            </div>
+        </section>
+
+        <!-- Scene 2 & 3: Letter Content -->
+        <section id="scene2" class="scene">
+            <div class="letter-container">
+                <div class="letter-content">
+                    <p class="letter-line">在這個特別的七夕情人節，我想告訴你</p>
+                    <p class="letter-line">雖然之前因為我的不成熟而讓你森77</p>
+                    <p class="letter-line">但經過了這麼久的時間我已經update到2.0了</p>
+                    <p class="letter-line">絕對不會再像以前一樣惹小寶貝不開心</p>
+                    <p class="letter-line">我們還要去很多地方 做很多事情<span class="small-text">(幫小寶貝插尾巴)</span></p>
+                    <p class="letter-line">歐但我可能超級直男所以小寶貝以後也要多多體諒我</p>
+                    <p class="letter-line">可以的話麻煩小寶貝提醒我哈哈哈</p>
+
+                    <div class="highlight-block">
+                        <p class="letter-line highlight">小寶貝的禮物雖然沒辦法在七夕這天送給小寶貝QQ</p>
+                        <p class="letter-line highlight">但我一定會送小寶貝ㄉ！！！</p>
+                    </div>
+
+                    <div class="hearts-decoration">
+                        <span>💕</span><span>💗</span><span>💖</span><span>💕</span><span>💗</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Canvas for confetti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <script type="module" src="/main.js"></script>
+</body>
+
+</html>
