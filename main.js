@@ -22,25 +22,31 @@ const myConfetti = confetti.create(confettiCanvas, {
 let isAnimating = false;
 
 /**
- * 生成隨機星星背景
+ * 生成隨機星星背景 - 銀河效果
  */
 function createStars() {
-  const starCount = 150;
+  const starCount = 250; // 更多星星
+  const colorVariants = ['', '', '', '', 'cyan', 'pink', 'gold']; // 大部分白色，少數彩色
 
   for (let i = 0; i < starCount; i++) {
     const star = document.createElement('div');
     star.className = 'star';
 
     // 隨機大小
-    const sizeClass = Math.random() < 0.6 ? 'small' : Math.random() < 0.85 ? 'medium' : 'large';
+    const rand = Math.random();
+    const sizeClass = rand < 0.65 ? 'small' : rand < 0.9 ? 'medium' : 'large';
     star.classList.add(sizeClass);
+
+    // 隨機顏色變體
+    const colorClass = colorVariants[Math.floor(Math.random() * colorVariants.length)];
+    if (colorClass) star.classList.add(colorClass);
 
     // 隨機位置
     star.style.left = `${Math.random() * 100}%`;
     star.style.top = `${Math.random() * 100}%`;
 
     // 隨機閃爍時間和延遲
-    star.style.setProperty('--twinkle-duration', `${2 + Math.random() * 4}s`);
+    star.style.setProperty('--twinkle-duration', `${1.5 + Math.random() * 3}s`);
     star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
 
     starsContainer.appendChild(star);
@@ -172,8 +178,24 @@ function triggerConfetti() {
 function transitionToLetter() {
   const tl = gsap.timeline();
 
+  // 觸發 Warp Speed 效果 - 星星拉成線條
+  starsContainer.classList.add('warp-speed');
+
   // 傳送門穿越動畫
   portal.classList.add('entering');
+
+  // 短暫白色閃光
+  gsap.to(document.body, {
+    backgroundColor: '#ffffff',
+    duration: 0.1,
+    delay: 0.8,
+    onComplete: () => {
+      gsap.to(document.body, {
+        backgroundColor: '#000000',
+        duration: 0.3
+      });
+    }
+  });
 
   // 等待穿越動畫完成後轉換場景
   tl.to(scene1, {
@@ -184,6 +206,8 @@ function transitionToLetter() {
       scene1.classList.remove('active');
       scene2.classList.add('active');
       document.body.classList.add('dark-mode');
+      // 移除 warp speed 效果
+      starsContainer.classList.remove('warp-speed');
       // 啟動密集流星模式
       enableIntenseShootingStars();
     }
