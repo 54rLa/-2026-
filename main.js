@@ -22,80 +22,71 @@ const myConfetti = confetti.create(confettiCanvas, {
 let isAnimating = false;
 
 /**
- * 生成愛心形狀的星星
+ * 生成愛心形狀的星星 - 優化版
  */
 function createHeartStars() {
-  const heartWidth = 200;
-  const heartHeight = 180;
-  const starCount = 45;
-  const colorVariants = ['', '', '', 'pink', 'pink', 'gold'];
+  const heartWidth = 180;
+  const heartHeight = 160;
+  const outlineStars = 35; // 減少數量提升性能
+  const colorVariants = ['', '', 'pink', 'gold']; // 減少白色比例
 
-  // 愛心參數方程點
-  for (let i = 0; i < starCount; i++) {
-    const t = (i / starCount) * Math.PI * 2;
+  // 愛心輪廓 - 使用標準心形方程
+  for (let i = 0; i < outlineStars; i++) {
+    const t = (i / outlineStars) * Math.PI * 2;
 
-    // 愛心形狀參數方程
+    // 標準心形方程 (調整比例)
     const x = 16 * Math.pow(Math.sin(t), 3);
-    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
 
-    // 轉換到容器坐標
-    const px = (x / 16) * (heartWidth / 2) + heartWidth / 2;
-    const py = (y / 16) * (heartHeight / 2) + heartHeight / 2;
+    // 轉換到容器坐標 (y 軸翻轉讓心形正向)
+    const px = (x / 18) * (heartWidth / 2) + heartWidth / 2;
+    const py = (-y / 18) * (heartHeight / 2) + heartHeight / 2 - 10;
 
     const star = document.createElement('div');
     star.className = 'heart-star';
 
-    // 隨機顏色
     const colorClass = colorVariants[Math.floor(Math.random() * colorVariants.length)];
     if (colorClass) star.classList.add(colorClass);
 
     star.style.left = `${px}px`;
     star.style.top = `${py}px`;
 
-    // 爆炸方向 (從中心向外)
+    // 爆炸方向
     const centerX = heartWidth / 2;
     const centerY = heartHeight / 2;
-    const explodeX = (px - centerX) * (3 + Math.random() * 2);
-    const explodeY = (py - centerY) * (3 + Math.random() * 2);
+    const explodeX = (px - centerX) * 4;
+    const explodeY = (py - centerY) * 4;
     star.style.setProperty('--explode-x', `${explodeX}px`);
     star.style.setProperty('--explode-y', `${explodeY}px`);
 
-    // 隨機閃爍
-    star.style.setProperty('--twinkle-duration', `${1 + Math.random() * 1.5}s`);
+    star.style.setProperty('--twinkle-duration', `${1.5 + Math.random() * 1.5}s`);
     star.style.setProperty('--twinkle-delay', `${Math.random() * 2}s`);
 
     starHeart.appendChild(star);
   }
 
-  // 添加一些內部填充星星
-  for (let i = 0; i < 20; i++) {
+  // 內部填充星星 (減少數量)
+  for (let i = 0; i < 12; i++) {
     const t = Math.random() * Math.PI * 2;
-    const scale = Math.random() * 0.7;
+    const scale = 0.2 + Math.random() * 0.5;
 
     const x = 16 * Math.pow(Math.sin(t), 3) * scale;
-    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * scale;
+    const y = (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * scale;
 
-    const px = (x / 16) * (heartWidth / 2) + heartWidth / 2;
-    const py = (y / 16) * (heartHeight / 2) + heartHeight / 2;
+    const px = (x / 18) * (heartWidth / 2) + heartWidth / 2;
+    const py = (-y / 18) * (heartHeight / 2) + heartHeight / 2 - 10;
 
     const star = document.createElement('div');
-    star.className = 'heart-star';
-    const colorClass = colorVariants[Math.floor(Math.random() * colorVariants.length)];
-    if (colorClass) star.classList.add(colorClass);
+    star.className = 'heart-star small';
 
     star.style.left = `${px}px`;
     star.style.top = `${py}px`;
-    star.style.width = '4px';
-    star.style.height = '4px';
-    star.style.opacity = '0.7';
 
     const centerX = heartWidth / 2;
     const centerY = heartHeight / 2;
-    const explodeX = (px - centerX) * (4 + Math.random() * 3);
-    const explodeY = (py - centerY) * (4 + Math.random() * 3);
-    star.style.setProperty('--explode-x', `${explodeX}px`);
-    star.style.setProperty('--explode-y', `${explodeY}px`);
-    star.style.setProperty('--twinkle-duration', `${0.8 + Math.random() * 1}s`);
+    star.style.setProperty('--explode-x', `${(px - centerX) * 5}px`);
+    star.style.setProperty('--explode-y', `${(py - centerY) * 5}px`);
+    star.style.setProperty('--twinkle-duration', `${1 + Math.random() * 1}s`);
     star.style.setProperty('--twinkle-delay', `${Math.random() * 1.5}s`);
 
     starHeart.appendChild(star);
