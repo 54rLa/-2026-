@@ -537,6 +537,141 @@ body.dark-mode {
   }
 }
 
+/* ========== ROMANTIC DECORATIONS (替代 emoji) ========== */
+
+/* Sparkle star - 閃爍星星替代 💫 */
+.sparkle-star {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 8px;
+  position: relative;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.sparkle-star::before,
+.sparkle-star::after {
+  content: '';
+  position: absolute;
+  background: linear-gradient(45deg, #fff, #ffd1dc);
+}
+
+.sparkle-star::before {
+  width: 2px;
+  height: 12px;
+  top: 0;
+  left: 5px;
+  border-radius: 1px;
+  box-shadow: 0 0 6px rgba(255, 200, 220, 0.8);
+}
+
+.sparkle-star::after {
+  width: 12px;
+  height: 2px;
+  top: 5px;
+  left: 0;
+  border-radius: 1px;
+  box-shadow: 0 0 6px rgba(255, 200, 220, 0.8);
+}
+
+@keyframes sparkle {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.8) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(45deg);
+  }
+}
+
+/* Floating heart - 漂浮心形替代 💕💗💖 */
+.floating-heart {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 0 6px;
+  position: relative;
+  animation: floatHeart 2s ease-in-out infinite;
+}
+
+.floating-heart::before,
+.floating-heart::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 16px;
+  background: linear-gradient(135deg, #ff6b95, #ff8fab);
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 8px rgba(255, 107, 149, 0.5);
+}
+
+.floating-heart::before {
+  left: 8px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+
+.floating-heart::after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+/* Color variations */
+.floating-heart.delay-1 {
+  animation-delay: 0.3s;
+}
+
+.floating-heart.delay-1::before,
+.floating-heart.delay-1::after {
+  background: linear-gradient(135deg, #ff85a1, #ffa5b8);
+}
+
+.floating-heart.delay-2 {
+  animation-delay: 0.6s;
+}
+
+.floating-heart.delay-2::before,
+.floating-heart.delay-2::after {
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+}
+
+.floating-heart.delay-3 {
+  animation-delay: 0.9s;
+}
+
+.floating-heart.delay-3::before,
+.floating-heart.delay-3::after {
+  background: linear-gradient(135deg, #ff6b95, #ff8fab);
+}
+
+.floating-heart.delay-4 {
+  animation-delay: 1.2s;
+}
+
+.floating-heart.delay-4::before,
+.floating-heart.delay-4::after {
+  background: linear-gradient(135deg, #ff85a1, #ffa5b8);
+}
+
+@keyframes floatHeart {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translateY(-5px) scale(1.1);
+    opacity: 1;
+  }
+}
+
 @keyframes fadeInOut {
 
   0%,
