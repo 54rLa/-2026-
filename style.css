@@ -124,23 +124,30 @@ body.dark-mode {
 
 .shooting-star {
   position: absolute;
-  width: 100px;
+  width: 120px;
   height: 2px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+  /* 尾巴在右邊（頭在左邊，往左下移動） */
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.9));
   border-radius: 50%;
-  animation: shoot 1.5s ease-out forwards;
+  animation: shoot 1.2s ease-out forwards;
   opacity: 0;
+  /* 旋轉讓流星朝左下方向 */
+  transform: rotate(35deg);
 }
 
 @keyframes shoot {
   0% {
     opacity: 1;
-    transform: translateX(0) translateY(0) rotate(-45deg);
+    transform: translateX(0) translateY(0) rotate(35deg);
+  }
+
+  70% {
+    opacity: 0.6;
   }
 
   100% {
     opacity: 0;
-    transform: translateX(300px) translateY(300px) rotate(-45deg);
+    transform: translateX(-250px) translateY(250px) rotate(35deg);
   }
 }
 

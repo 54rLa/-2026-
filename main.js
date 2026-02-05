@@ -54,31 +54,47 @@ function createShootingStar() {
   const shootingStar = document.createElement('div');
   shootingStar.className = 'shooting-star';
 
-  // 隨機起始位置（畫面上方和左側）
-  shootingStar.style.left = `${Math.random() * 70}%`;
-  shootingStar.style.top = `${Math.random() * 30}%`;
+  // 從右上角開始（右側 30%-90%，上方 5%-40%）
+  shootingStar.style.left = `${30 + Math.random() * 60}%`;
+  shootingStar.style.top = `${5 + Math.random() * 35}%`;
 
   shootingStarsContainer.appendChild(shootingStar);
 
   // 動畫結束後移除
   setTimeout(() => {
     shootingStar.remove();
-  }, 1500);
+  }, 1200);
 }
 
 /**
  * 定期產生流星
  */
+let shootingStarIntense = false;
+
 function startShootingStars() {
   // 隨機間隔產生流星
   const scheduleNext = () => {
-    const delay = 3000 + Math.random() * 5000; // 3-8秒間隔
+    // 密集模式：1-3秒，普通模式：3-8秒
+    const delay = shootingStarIntense
+      ? 800 + Math.random() * 2000
+      : 3000 + Math.random() * 5000;
     setTimeout(() => {
       createShootingStar();
       scheduleNext();
     }, delay);
   };
   scheduleNext();
+}
+
+/**
+ * 啟動密集流星模式
+ */
+function enableIntenseShootingStars() {
+  shootingStarIntense = true;
+  // 立即產生幾顆流星
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => createShootingStar(), i * 300);
+  }
 }
 
 /**
@@ -168,6 +184,8 @@ function transitionToLetter() {
       scene1.classList.remove('active');
       scene2.classList.add('active');
       document.body.classList.add('dark-mode');
+      // 啟動密集流星模式
+      enableIntenseShootingStars();
     }
   })
     .to(scene2, {
