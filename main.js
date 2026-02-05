@@ -2,8 +2,8 @@ import gsap from 'gsap';
 import confetti from 'canvas-confetti';
 
 // DOM Elements
-const portal = document.getElementById('portal');
-const portalContainer = document.getElementById('portalContainer');
+const starHeart = document.getElementById('starHeart');
+const heartContainer = document.getElementById('heartContainer');
 const scene1 = document.getElementById('scene1');
 const scene2 = document.getElementById('scene2');
 const letterLines = document.querySelectorAll('.letter-line');
@@ -20,6 +20,87 @@ const myConfetti = confetti.create(confettiCanvas, {
 
 // State
 let isAnimating = false;
+
+/**
+ * 生成愛心形狀的星星
+ */
+function createHeartStars() {
+  const heartWidth = 200;
+  const heartHeight = 180;
+  const starCount = 45;
+  const colorVariants = ['', '', '', 'pink', 'pink', 'gold'];
+
+  // 愛心參數方程點
+  for (let i = 0; i < starCount; i++) {
+    const t = (i / starCount) * Math.PI * 2;
+
+    // 愛心形狀參數方程
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+    // 轉換到容器坐標
+    const px = (x / 16) * (heartWidth / 2) + heartWidth / 2;
+    const py = (y / 16) * (heartHeight / 2) + heartHeight / 2;
+
+    const star = document.createElement('div');
+    star.className = 'heart-star';
+
+    // 隨機顏色
+    const colorClass = colorVariants[Math.floor(Math.random() * colorVariants.length)];
+    if (colorClass) star.classList.add(colorClass);
+
+    star.style.left = `${px}px`;
+    star.style.top = `${py}px`;
+
+    // 爆炸方向 (從中心向外)
+    const centerX = heartWidth / 2;
+    const centerY = heartHeight / 2;
+    const explodeX = (px - centerX) * (3 + Math.random() * 2);
+    const explodeY = (py - centerY) * (3 + Math.random() * 2);
+    star.style.setProperty('--explode-x', `${explodeX}px`);
+    star.style.setProperty('--explode-y', `${explodeY}px`);
+
+    // 隨機閃爍
+    star.style.setProperty('--twinkle-duration', `${1 + Math.random() * 1.5}s`);
+    star.style.setProperty('--twinkle-delay', `${Math.random() * 2}s`);
+
+    starHeart.appendChild(star);
+  }
+
+  // 添加一些內部填充星星
+  for (let i = 0; i < 20; i++) {
+    const t = Math.random() * Math.PI * 2;
+    const scale = Math.random() * 0.7;
+
+    const x = 16 * Math.pow(Math.sin(t), 3) * scale;
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * scale;
+
+    const px = (x / 16) * (heartWidth / 2) + heartWidth / 2;
+    const py = (y / 16) * (heartHeight / 2) + heartHeight / 2;
+
+    const star = document.createElement('div');
+    star.className = 'heart-star';
+    const colorClass = colorVariants[Math.floor(Math.random() * colorVariants.length)];
+    if (colorClass) star.classList.add(colorClass);
+
+    star.style.left = `${px}px`;
+    star.style.top = `${py}px`;
+    star.style.width = '4px';
+    star.style.height = '4px';
+    star.style.opacity = '0.7';
+
+    const centerX = heartWidth / 2;
+    const centerY = heartHeight / 2;
+    const explodeX = (px - centerX) * (4 + Math.random() * 3);
+    const explodeY = (py - centerY) * (4 + Math.random() * 3);
+    star.style.setProperty('--explode-x', `${explodeX}px`);
+    star.style.setProperty('--explode-y', `${explodeY}px`);
+    star.style.setProperty('--twinkle-duration', `${0.8 + Math.random() * 1}s`);
+    star.style.setProperty('--twinkle-delay', `${Math.random() * 1.5}s`);
+
+    starHeart.appendChild(star);
+  }
+}
 
 /**
  * 生成隨機星星背景 - 銀河效果
@@ -173,35 +254,40 @@ function triggerConfetti() {
 }
 
 /**
- * 場景轉換：穿越傳送門進入宇宙
+ * 場景轉換：愛心爆炸後進入信件
  */
 function transitionToLetter() {
   const tl = gsap.timeline();
 
-  // 觸發 Warp Speed 效果 - 星星拉成線條
-  starsContainer.classList.add('warp-speed');
+  // 停止心跳動畫
+  starHeart.style.animation = 'none';
 
-  // 傳送門穿越動畫
-  portal.classList.add('entering');
+  // 觸發愛心爆炸
+  starHeart.classList.add('exploding');
 
-  // 短暫白色閃光
+  // 觸發 Warp Speed 效果 - 背景星星拉成線條
+  setTimeout(() => {
+    starsContainer.classList.add('warp-speed');
+  }, 300);
+
+  // 短暫粉色閃光
   gsap.to(document.body, {
-    backgroundColor: '#ffffff',
-    duration: 0.1,
-    delay: 0.8,
+    backgroundColor: '#ffb6c1',
+    duration: 0.15,
+    delay: 0.5,
     onComplete: () => {
       gsap.to(document.body, {
         backgroundColor: '#000000',
-        duration: 0.3
+        duration: 0.4
       });
     }
   });
 
-  // 等待穿越動畫完成後轉換場景
+  // 等待爆炸動畫完成後轉換場景
   tl.to(scene1, {
     opacity: 0,
-    duration: 1.2,
-    delay: 0.5,
+    duration: 1,
+    delay: 0.6,
     onComplete: () => {
       scene1.classList.remove('active');
       scene2.classList.add('active');
@@ -277,7 +363,7 @@ function animateLetterContent() {
 /**
  * 主要點擊事件處理
  */
-function handlePortalClick() {
+function handleHeartClick() {
   if (isAnimating) return;
   isAnimating = true;
 
@@ -288,21 +374,22 @@ function handlePortalClick() {
 
 // 初始化星空背景
 createStars();
+createHeartStars();
 startShootingStars();
 
 // 事件綁定
-portalContainer.addEventListener('click', handlePortalClick);
-portalContainer.addEventListener('touchend', (e) => {
+heartContainer.addEventListener('click', handleHeartClick);
+heartContainer.addEventListener('touchend', (e) => {
   e.preventDefault();
-  handlePortalClick();
+  handleHeartClick();
 });
 
-// 初始動畫：傳送門入場
-gsap.from(portal, {
+// 初始動畫：愛心入場
+gsap.from(starHeart, {
   scale: 0,
-  rotation: -180,
-  duration: 1.2,
-  ease: 'back.out(1.4)',
+  rotation: -15,
+  duration: 1,
+  ease: 'elastic.out(1, 0.5)',
   delay: 0.3
 });
 
@@ -310,5 +397,5 @@ gsap.from('.hint-text', {
   opacity: 0,
   y: 20,
   duration: 0.5,
-  delay: 1.2
+  delay: 1
 });

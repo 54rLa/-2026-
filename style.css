@@ -250,8 +250,8 @@ body.dark-mode {
   visibility: visible;
 }
 
-/* Scene 1: Cosmic Portal */
-.portal-container {
+/* Scene 1: Star Heart */
+.heart-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -259,120 +259,93 @@ body.dark-mode {
   -webkit-tap-highlight-color: transparent;
 }
 
-.portal {
+.star-heart {
   position: relative;
-  width: 180px;
+  width: 200px;
   height: 180px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  animation: heartbeat 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(255, 100, 150, 0.5));
 }
 
-/* 旋轉光環 */
-.portal-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 2px solid transparent;
-}
-
-.ring-1 {
-  width: 100%;
-  height: 100%;
-  border-color: rgba(0, 255, 255, 0.5);
-  border-width: 3px;
-  box-shadow:
-    0 0 30px rgba(0, 255, 255, 0.5),
-    0 0 60px rgba(0, 255, 255, 0.3),
-    inset 0 0 30px rgba(0, 255, 255, 0.2);
-  animation: rotate 6s linear infinite;
-}
-
-.ring-2 {
-  width: 75%;
-  height: 75%;
-  border-color: rgba(255, 0, 255, 0.6);
-  border-width: 2px;
-  box-shadow:
-    0 0 25px rgba(255, 0, 255, 0.5),
-    0 0 50px rgba(255, 0, 255, 0.3),
-    inset 0 0 25px rgba(255, 0, 255, 0.2);
-  animation: rotate 4s linear infinite reverse;
-}
-
-.ring-3 {
-  width: 50%;
-  height: 50%;
-  border-color: rgba(167, 139, 250, 0.8);
-  border-width: 2px;
-  box-shadow:
-    0 0 20px rgba(167, 139, 250, 0.6),
-    0 0 40px rgba(167, 139, 250, 0.4),
-    inset 0 0 20px rgba(167, 139, 250, 0.3);
-  animation: rotate 2.5s linear infinite;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 核心發光 */
-.portal-core {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, #fff 0%, #c4b5fd 40%, #8b5cf6 70%, transparent 100%);
-  border-radius: 50%;
-  box-shadow:
-    0 0 30px rgba(255, 255, 255, 0.8),
-    0 0 60px rgba(167, 139, 250, 0.6),
-    0 0 90px rgba(139, 92, 246, 0.4);
-  animation: pulse-core 2s ease-in-out infinite;
-}
-
-@keyframes pulse-core {
+@keyframes heartbeat {
 
   0%,
   100% {
     transform: scale(1);
-    box-shadow:
-      0 0 30px rgba(255, 255, 255, 0.8),
-      0 0 60px rgba(167, 139, 250, 0.6),
-      0 0 90px rgba(139, 92, 246, 0.4);
   }
 
-  50% {
-    transform: scale(1.2);
-    box-shadow:
-      0 0 40px rgba(255, 255, 255, 1),
-      0 0 80px rgba(167, 139, 250, 0.8),
-      0 0 120px rgba(139, 92, 246, 0.6);
+  15% {
+    transform: scale(1.1);
   }
-}
 
-/* 傳送門穿越動畫 */
-.portal.entering {
-  animation: enter-portal 1.5s ease-in forwards;
-}
-
-@keyframes enter-portal {
-  0% {
+  30% {
     transform: scale(1);
-    opacity: 1;
+  }
+
+  45% {
+    transform: scale(1.08);
+  }
+
+  60% {
+    transform: scale(1);
+  }
+}
+
+/* Individual stars in heart */
+.heart-star {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px 2px rgba(255, 255, 255, 0.8),
+    0 0 12px 4px rgba(255, 150, 200, 0.6);
+  animation: starTwinkle var(--twinkle-duration, 2s) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+}
+
+.heart-star.pink {
+  background: #ff69b4;
+  box-shadow:
+    0 0 8px 3px rgba(255, 105, 180, 0.8),
+    0 0 15px 5px rgba(255, 105, 180, 0.5);
+}
+
+.heart-star.gold {
+  background: #ffd700;
+  box-shadow:
+    0 0 8px 3px rgba(255, 215, 0, 0.8),
+    0 0 15px 5px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes starTwinkle {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
   }
 
   50% {
-    transform: scale(3);
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+/* Heart explosion animation */
+.star-heart.exploding .heart-star {
+  animation: explodeStar 1s ease-out forwards;
+}
+
+@keyframes explodeStar {
+  0% {
+    transform: translate(0, 0) scale(1);
     opacity: 1;
   }
 
   100% {
-    transform: scale(20);
+    transform: translate(var(--explode-x, 0), var(--explode-y, 0)) scale(0);
     opacity: 0;
   }
 }
