@@ -336,7 +336,8 @@ body.dark-mode {
   text-shadow: 0 2px 15px rgba(180, 160, 255, 0.6);
   margin-bottom: 8px;
   opacity: 0;
-  transform: translateY(30px);
+  /* 初始位置由 JS 控制流星效果 */
+  will-change: transform, opacity, filter;
 }
 
 .small-text {

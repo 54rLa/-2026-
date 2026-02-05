@@ -180,27 +180,56 @@ function transitionToLetter() {
 }
 
 /**
- * 信件內容逐行淡入動畫
+ * 信件內容 - 流星滑入動畫
  */
 function animateLetterContent() {
   const tl = gsap.timeline();
 
-  // 逐行淡入
+  // 每行文字像流星一樣從右上滑入
   letterLines.forEach((line, index) => {
+    // 設定初始狀態：在右上方，透明
+    gsap.set(line, {
+      opacity: 0,
+      x: 100,
+      y: -30,
+      filter: 'blur(4px)'
+    });
+
     tl.to(line, {
       opacity: 1,
+      x: 0,
       y: 0,
-      duration: 0.6,
-      ease: 'power2.out'
-    }, index * 0.3); // 每行間隔 0.3 秒
+      filter: 'blur(0px)',
+      duration: 0.8,
+      ease: 'power3.out',
+      onStart: () => {
+        // 添加流星光軌效果
+        line.style.textShadow = '20px -10px 20px rgba(200, 180, 255, 0.8), 40px -20px 30px rgba(150, 130, 220, 0.5)';
+      },
+      onComplete: () => {
+        // 動畫結束後恢復正常光暈
+        gsap.to(line, {
+          textShadow: '0 2px 15px rgba(180, 160, 255, 0.6)',
+          duration: 0.5
+        });
+      }
+    }, index * 0.4); // 每行間隔 0.4 秒
   });
 
-  // 最後顯示愛心裝飾
+  // 最後顯示愛心裝飾（也用流星效果）
+  gsap.set(heartsDecoration, {
+    opacity: 0,
+    x: 50,
+    y: -20
+  });
+
   tl.to(heartsDecoration, {
     opacity: 1,
-    duration: 0.5,
+    x: 0,
+    y: 0,
+    duration: 0.6,
     ease: 'power2.out'
-  }, '-=0.3');
+  }, '-=0.2');
 }
 
 /**
