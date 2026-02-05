@@ -185,50 +185,78 @@ function enableIntenseShootingStars() {
 }
 
 /**
- * 觸發星空主題 confetti 爆炸特效
+ * 觸發銀河爆炸 confetti 特效
  */
 function triggerConfetti() {
-  // 星空主題顏色：紫、藍、白、金
-  const colors = ['#a78bfa', '#818cf8', '#c4b5fd', '#fcd34d', '#ffffff', '#93c5fd'];
+  // 銀河主題顏色：紫、藍、白、金、粉
+  const colors = ['#a78bfa', '#818cf8', '#c4b5fd', '#fcd34d', '#ffffff', '#93c5fd', '#f472b6', '#fb7185'];
 
-  // 主爆炸 - 星星形狀
+  // 第一波：中心大爆炸
   myConfetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 },
+    particleCount: 150,
+    spread: 100,
+    origin: { y: 0.5 },
     colors: colors,
     shapes: ['star', 'circle'],
-    scalar: 1.2
+    scalar: 1.5,
+    gravity: 0.6,
+    drift: 0
   });
 
-  // 側邊爆炸
+  // 第二波：向外擴散
   setTimeout(() => {
     myConfetti({
-      particleCount: 50,
-      spread: 100,
-      origin: { y: 0.5, x: 0.3 },
+      particleCount: 80,
+      spread: 180,
+      origin: { y: 0.5 },
       colors: colors,
-      gravity: 0.8,
-      shapes: ['star']
+      shapes: ['star'],
+      scalar: 1.2,
+      gravity: 0.4
     });
+  }, 100);
 
+  // 第三波：四面八方爆發
+  setTimeout(() => {
+    // 左
     myConfetti({
-      particleCount: 50,
-      spread: 100,
-      origin: { y: 0.5, x: 0.7 },
+      particleCount: 40,
+      angle: 60,
+      spread: 80,
+      origin: { x: 0.3, y: 0.5 },
       colors: colors,
-      gravity: 0.8,
-      shapes: ['star']
+      shapes: ['star'],
+      gravity: 0.5
+    });
+    // 右
+    myConfetti({
+      particleCount: 40,
+      angle: 120,
+      spread: 80,
+      origin: { x: 0.7, y: 0.5 },
+      colors: colors,
+      shapes: ['star'],
+      gravity: 0.5
+    });
+    // 上
+    myConfetti({
+      particleCount: 30,
+      angle: 90,
+      spread: 60,
+      origin: { x: 0.5, y: 0.3 },
+      colors: colors,
+      shapes: ['star'],
+      gravity: 0.3
     });
   }, 200);
 
-  // 持續灑落效果
-  const duration = 3000;
+  // 持續灑落星星
+  const duration = 2500;
   const end = Date.now() + duration;
 
   const frame = () => {
     myConfetti({
-      particleCount: 3,
+      particleCount: 2,
       angle: 60,
       spread: 55,
       origin: { x: 0, y: 0.5 },
@@ -237,7 +265,7 @@ function triggerConfetti() {
     });
 
     myConfetti({
-      particleCount: 3,
+      particleCount: 2,
       angle: 120,
       spread: 55,
       origin: { x: 1, y: 0.5 },
@@ -250,7 +278,7 @@ function triggerConfetti() {
     }
   };
 
-  setTimeout(frame, 500);
+  setTimeout(frame, 400);
 }
 
 /**
@@ -265,20 +293,31 @@ function transitionToLetter() {
   // 觸發愛心爆炸
   starHeart.classList.add('exploding');
 
+  // 添加螢幕震動效果
+  setTimeout(() => {
+    scene1.classList.add('shaking');
+  }, 200);
+
   // 觸發 Warp Speed 效果 - 背景星星拉成線條
   setTimeout(() => {
     starsContainer.classList.add('warp-speed');
-  }, 300);
+  }, 400);
 
-  // 短暫粉色閃光
+  // 劇烈白色閃光 (銀河爆炸)
   gsap.to(document.body, {
-    backgroundColor: '#ffb6c1',
-    duration: 0.15,
-    delay: 0.5,
+    backgroundColor: '#ffffff',
+    duration: 0.08,
+    delay: 0.25,
     onComplete: () => {
       gsap.to(document.body, {
-        backgroundColor: '#000000',
-        duration: 0.4
+        backgroundColor: '#ffb6c1',
+        duration: 0.1,
+        onComplete: () => {
+          gsap.to(document.body, {
+            backgroundColor: '#000000',
+            duration: 0.5
+          });
+        }
       });
     }
   });
