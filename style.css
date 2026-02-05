@@ -135,27 +135,28 @@ body.dark-mode {
   opacity: 0;
 }
 
-/* 流星尾巴使用偽元素 */
+/* 流星尾巴 - 向右上方延伸（移動方向的後方） */
 .shooting-star::after {
   content: '';
   position: absolute;
   top: 50%;
-  left: 100%;
-  transform: translateY(-50%);
-  width: 80px;
+  right: 100%;
+  transform: translateY(-50%) rotate(-45deg);
+  transform-origin: right center;
+  width: 100px;
   height: 2px;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(200, 200, 255, 0.4), transparent);
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(200, 200, 255, 0.4), transparent);
 }
 
 @keyframes shoot {
   0% {
     opacity: 1;
-    transform: translate(0, 0) rotate(45deg);
+    transform: translate(0, 0);
   }
 
   100% {
     opacity: 0;
-    transform: translate(-200px, 200px) rotate(45deg);
+    transform: translate(-200px, 200px);
   }
 }
 
