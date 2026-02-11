@@ -1,5 +1,4 @@
 import gsap from 'gsap';
-import confetti from 'canvas-confetti';
 
 // DOM Elements
 const starHeart = document.getElementById('starHeart');
@@ -11,13 +10,6 @@ const heartsDecoration = document.querySelector('.hearts-decoration');
 const starsContainer = document.getElementById('stars-container');
 const shootingStarsContainer = document.getElementById('shooting-stars');
 const flashOverlay = document.getElementById('flash-overlay');
-
-// Custom confetti canvas
-const confettiCanvas = document.getElementById('confetti-canvas');
-const myConfetti = confetti.create(confettiCanvas, {
-  resize: true,
-  useWorker: true
-});
 
 // State
 let isAnimating = false;
@@ -328,45 +320,6 @@ function startWarpTunnel(duration, onComplete) {
 }
 
 /**
- * 觸發 confetti 特效
- */
-function triggerConfetti() {
-  const colors = ['#a78bfa', '#818cf8', '#c4b5fd', '#fcd34d', '#ffffff', '#93c5fd', '#f472b6'];
-
-  myConfetti({
-    particleCount: 80,
-    spread: 120,
-    origin: { y: 0.5 },
-    colors: colors,
-    shapes: ['star', 'circle'],
-    scalar: 1.3,
-    gravity: 0.5,
-    drift: 0
-  });
-
-  setTimeout(() => {
-    myConfetti({
-      particleCount: 30,
-      angle: 60,
-      spread: 70,
-      origin: { x: 0.2, y: 0.5 },
-      colors: colors,
-      shapes: ['star'],
-      gravity: 0.5
-    });
-    myConfetti({
-      particleCount: 30,
-      angle: 120,
-      spread: 70,
-      origin: { x: 0.8, y: 0.5 },
-      colors: colors,
-      shapes: ['star'],
-      gravity: 0.5
-    });
-  }, 200);
-}
-
-/**
  * 場景轉換
  */
 function transitionToLetter() {
@@ -515,7 +468,6 @@ function handleHeartClick() {
   if (isAnimating) return;
   isAnimating = true;
 
-  triggerConfetti();
   transitionToLetter();
 }
 

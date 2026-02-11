@@ -14,7 +14,6 @@
 |------|------|
 | 建構工具 | Vite 7.3.1 |
 | 動畫引擎 | GSAP 3.14.2 |
-| 特效 | canvas-confetti 1.9.4 |
 | 部署 | gh-pages (GitHub Pages) |
 | 字體 | 辰宇落雁體 (ChenYuluoyan 2.0 Thin) |
 | 語言 | 純 HTML + CSS + JavaScript (ES Module) |
@@ -55,8 +54,7 @@ birthday-surprise/
 ### 點擊觸發: 銀河穿越轉場
 1. 愛心內縮 (implode) → 星星向四方爆射 (galaxyExplode)
 2. 衝擊波環 (shockwave) × 2 + 輕微螢幕震動 (screenShake)
-3. canvas-confetti 紙花爆發 (80+30+30 顆)
-4. 靜態星星淡出，啟動 **Canvas 星空隧道** (2.5 秒沉浸穿越銀河)
+3. 靜態星星淡出，啟動 **Canvas 星空隧道** (2.5 秒沉浸穿越銀河)
    - 星星持續從螢幕中心生成、加速向外飛散
    - 帶光軌拖尾、離中心越遠越亮越大 (透視效果)
    - 速度曲線：慢啟動 → 加速巡航 → 減速停靠
@@ -76,7 +74,7 @@ birthday-surprise/
 
 ## 核心檔案詳解
 
-### `main.js` (~549 行)
+### `main.js` (~500 行)
 
 | 函式 | 功能 |
 |------|------|
@@ -86,13 +84,12 @@ birthday-surprise/
 | `startShootingStars()` | 定時產生流星 (普通 3-8s / 密集 0.2-2s) |
 | `enableIntenseShootingStars()` | 開啟密集流星模式，立即發射 3 顆 |
 | `startWarpTunnel(duration, onComplete)` | Canvas 星空隧道 (粒子系統 + 光軌 + 速度曲線) |
-| `triggerConfetti()` | confetti 紙花 (中心+兩側爆發) |
 | `transitionToLetter()` | 場景轉換 (爆炸→隧道→閃光→信件) |
 | `showLetterScene()` | 隧道結束後顯示信件、重建星空 |
 | `animateLetterContent()` | 信件文字流星滑入動畫 |
 | `handleHeartClick()` | 點擊事件，防重複觸發 |
 
-**依賴**: `gsap` (動畫時間軸)、`canvas-confetti` (紙花效果)
+**依賴**: `gsap` (動畫時間軸)
 
 ### `style.css` (~809 行)
 
@@ -114,7 +111,6 @@ birthday-surprise/
 ### `index.html` (69 行)
 - 兩個 `<section>` 場景 (`scene1` 星心 / `scene2` 信件)
 - `<div id="flash-overlay">` 轉場閃光覆蓋層
-- `<canvas id="confetti-canvas">` 全螢幕紙花層
 - 所有裝飾使用 CSS class 而非 emoji (`sparkle-star`、`floating-heart`)
 
 ---
@@ -148,7 +144,7 @@ export default defineConfig({
 ## 設計特點
 
 1. **無 emoji 設計**: 所有裝飾元素皆用 CSS 偽元素 (`::before`/`::after`) 手繪
-2. **性能優化**: 星星減量至 150 顆、warp 動畫僅用 transform+opacity (無 filter blur)、confetti 粒子精簡、持續灑落降頻 (每 3 幀)
+2. **性能優化**: 星星減量至 150 顆、warp 動畫僅用 transform+opacity (無 filter blur)、Canvas 粒子系統取代 DOM 動畫
 3. **滑順轉場**: flash overlay (radial-gradient) 取代直接改 body 背景色、scene1/scene2 交叉淡入淡出無黑屏、warp 後星星重新生成淡入
 4. **防重複觸發**: `isAnimating` flag 防止多次點擊
 5. **RWD 適配**: 手機直向 + 橫向模式皆有優化
@@ -174,8 +170,7 @@ export default defineConfig({
 
 - 修改 `base` 路徑時需同步更新 `vite.config.js`
 - 字體檔案在 `font/` 資料夾，CSS 中以 `/font/` 絕對路徑引用
-- confetti canvas 為固定定位全螢幕覆蓋，z-index: 1000
-- flash overlay z-index: 500，介於 app (1) 和 confetti (1000) 之間
+- flash overlay z-index: 500，高於 app (1)
 - 場景切換靠 GSAP 控制交叉淡入淡出，`.active` class 控制 visibility
 - warp 動畫避免使用 `filter: blur()` 以防 lag (250→150 顆星星同時動畫)
 - `regenerateStars()` 在 warp 結束後清空並重建星星，避免殘留 DOM
