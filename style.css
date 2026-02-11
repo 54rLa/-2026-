@@ -28,7 +28,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background 1s ease;
   overflow: hidden;
   position: relative;
 }
@@ -67,8 +66,16 @@ body::before {
   }
 }
 
-body.dark-mode {
-  background: #000000;
+/* Flash overlay for smooth transition */
+#flash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 500;
+  opacity: 0;
 }
 
 #app {
@@ -87,27 +94,28 @@ body.dark-mode {
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  transition: transform 0.5s ease;
 }
 
-/* Warp Speed Effect - stars stretch into lines */
+/* Warp Speed Effect - stars fly outward from center (entering galaxy)
+   只用 transform (GPU 加速)，不用 filter 避免 lag */
 #stars-container.warp-speed .star {
-  animation: warpStretch 1.5s ease-in forwards;
+  animation: warpRadial 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: var(--warp-delay, 0s);
 }
 
-@keyframes warpStretch {
+@keyframes warpRadial {
   0% {
-    transform: scale(1);
+    transform: translate(0, 0) scale(1);
     opacity: 1;
   }
 
-  50% {
-    transform: scaleX(50) translateX(-20px);
+  40% {
+    transform: translate(calc(var(--warp-x) * 0.15), calc(var(--warp-y) * 0.15)) scale(1.8);
     opacity: 1;
   }
 
   100% {
-    transform: scaleX(100) translateX(-50px);
+    transform: translate(var(--warp-x), var(--warp-y)) scale(0.5);
     opacity: 0;
   }
 }
@@ -242,7 +250,6 @@ body.dark-mode {
   align-items: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
 .scene.active {
@@ -356,7 +363,7 @@ body.dark-mode {
 
 /* Phase 2: Stars explode outward */
 .star-heart.exploding .heart-star {
-  animation: galaxyExplode 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: galaxyExplode 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   animation-delay: 0.25s;
 }
 
@@ -364,19 +371,16 @@ body.dark-mode {
   0% {
     transform: translate(0, 0) scale(2);
     opacity: 1;
-    filter: brightness(3);
   }
 
   20% {
     transform: translate(calc(var(--explode-x) * 0.3), calc(var(--explode-y) * 0.3)) scale(2.5);
     opacity: 1;
-    filter: brightness(4) blur(0px);
   }
 
   100% {
     transform: translate(calc(var(--explode-x) * 1.5), calc(var(--explode-y) * 1.5)) scale(0);
     opacity: 0;
-    filter: brightness(1) blur(2px);
   }
 }
 
@@ -454,7 +458,7 @@ body.dark-mode {
 
 /* Screen shake during explosion */
 .scene.shaking {
-  animation: screenShake 0.5s ease-out;
+  animation: screenShake 0.4s ease-out;
 }
 
 @keyframes screenShake {
@@ -464,39 +468,23 @@ body.dark-mode {
     transform: translate(0, 0);
   }
 
-  10% {
-    transform: translate(-8px, -5px);
-  }
-
-  20% {
-    transform: translate(8px, 5px);
+  15% {
+    transform: translate(-5px, -3px);
   }
 
   30% {
-    transform: translate(-6px, 4px);
+    transform: translate(5px, 3px);
   }
 
-  40% {
-    transform: translate(6px, -4px);
-  }
-
-  50% {
-    transform: translate(-4px, 3px);
+  45% {
+    transform: translate(-3px, 2px);
   }
 
   60% {
-    transform: translate(4px, -3px);
+    transform: translate(3px, -2px);
   }
 
-  70% {
-    transform: translate(-2px, 2px);
-  }
-
-  80% {
-    transform: translate(2px, -2px);
-  }
-
-  90% {
+  75% {
     transform: translate(-1px, 1px);
   }
 }
@@ -539,7 +527,7 @@ body.dark-mode {
 
 /* ========== ROMANTIC DECORATIONS (替代 emoji) ========== */
 
-/* Sparkle star - 閃爍星星替代 💫 */
+/* Sparkle star - 閃爍星星替代 */
 .sparkle-star {
   display: inline-block;
   width: 12px;
@@ -588,7 +576,7 @@ body.dark-mode {
   }
 }
 
-/* Floating heart - 漂浮心形替代 💕💗💖 */
+/* Floating heart - 漂浮心形替代 */
 .floating-heart {
   display: inline-block;
   width: 16px;
@@ -709,8 +697,7 @@ body.dark-mode {
   text-shadow: 0 2px 15px rgba(180, 160, 255, 0.6);
   margin-bottom: 8px;
   opacity: 0;
-  /* 初始位置由 JS 控制流星效果 */
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .small-text {
@@ -785,43 +772,6 @@ body.dark-mode {
 
 /* Mobile Optimization */
 @media (max-width: 480px) {
-  .gift-box {
-    width: 120px;
-    height: 120px;
-  }
-
-  .gift-base {
-    width: 120px;
-    height: 80px;
-  }
-
-  .gift-base::before {
-    width: 25px;
-  }
-
-  .gift-lid {
-    width: 140px;
-    height: 35px;
-    bottom: 76px;
-    left: -10px;
-  }
-
-  .gift-lid::before {
-    width: 25px;
-  }
-
-  .gift-bow {
-    width: 50px;
-    height: 35px;
-    top: -25px;
-  }
-
-  .gift-bow::before,
-  .gift-bow::after {
-    width: 28px;
-    height: 25px;
-  }
-
   .letter-container {
     padding: 15px;
   }
