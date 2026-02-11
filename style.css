@@ -96,30 +96,6 @@ body::before {
   z-index: 0;
 }
 
-/* Warp Speed Effect - stars fly outward from center (entering galaxy)
-   只用 transform (GPU 加速)，不用 filter 避免 lag */
-#stars-container.warp-speed .star {
-  animation: warpRadial 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-  animation-delay: var(--warp-delay, 0s);
-}
-
-@keyframes warpRadial {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-
-  40% {
-    transform: translate(calc(var(--warp-x) * 0.15), calc(var(--warp-y) * 0.15)) scale(1.8);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translate(var(--warp-x), var(--warp-y)) scale(0.5);
-    opacity: 0;
-  }
-}
-
 .star {
   position: absolute;
   background: #fff;
@@ -253,7 +229,6 @@ body::before {
 }
 
 .scene.active {
-  opacity: 1;
   visibility: visible;
 }
 

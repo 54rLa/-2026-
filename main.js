@@ -23,7 +23,7 @@ const myConfetti = confetti.create(confettiCanvas, {
 let isAnimating = false;
 
 /**
- * 生成愛心形狀的星星 - 優化版
+ * 生成愛心形狀的星星
  */
 function createHeartStars() {
   const heartWidth = 180;
@@ -61,7 +61,6 @@ function createHeartStars() {
     starHeart.appendChild(star);
   }
 
-  // 內部填充星星
   for (let i = 0; i < 12; i++) {
     const t = Math.random() * Math.PI * 2;
     const scale = 0.2 + Math.random() * 0.5;
@@ -90,7 +89,7 @@ function createHeartStars() {
 }
 
 /**
- * 生成隨機星星背景 - 銀河效果 (減量至 150 顆降低 lag)
+ * 生成隨機星星背景
  */
 function createStars() {
   const starCount = 150;
@@ -112,21 +111,8 @@ function createStars() {
     star.style.left = `${posX}%`;
     star.style.top = `${posY}%`;
 
-    // Warp 方向：從螢幕中心往外放射
-    const dx = posX - 50;
-    const dy = posY - 50;
-    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-    const warpX = (dx / dist) * (60 + dist * 2.5);
-    const warpY = (dy / dist) * (60 + dist * 2.5);
-    star.style.setProperty('--warp-x', `${warpX}vw`);
-    star.style.setProperty('--warp-y', `${warpY}vh`);
-
     star.style.setProperty('--twinkle-duration', `${1.5 + Math.random() * 3}s`);
     star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
-
-    // Warp 延遲：靠中心的先動，模擬深度
-    const warpDelay = (1 - dist / 70) * 0.2;
-    star.style.setProperty('--warp-delay', `${Math.max(0, warpDelay).toFixed(2)}s`);
 
     starsContainer.appendChild(star);
   }
@@ -149,9 +135,6 @@ function createShootingStar() {
   }, 1200);
 }
 
-/**
- * 定期產生流星
- */
 let shootingStarIntense = false;
 
 function startShootingStars() {
@@ -167,9 +150,6 @@ function startShootingStars() {
   scheduleNext();
 }
 
-/**
- * 啟動密集流星模式
- */
 function enableIntenseShootingStars() {
   shootingStarIntense = true;
   for (let i = 0; i < 3; i++) {
@@ -178,12 +158,181 @@ function enableIntenseShootingStars() {
 }
 
 /**
- * 觸發 confetti 特效 (精簡版，減少粒子數)
+ * 星空隧道效果 - 持續從中心生成星星往外飛，模擬穿越銀河
+ * 用 canvas 繪製避免 DOM 操作的 lag
+ */
+function startWarpTunnel(duration, onComplete) {
+  const canvas = document.createElement('canvas');
+  canvas.id = 'warp-canvas';
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;';
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = window.innerWidth;
+  let h = canvas.height = window.innerHeight;
+  const cx = w / 2;
+  const cy = h / 2;
+
+  // 星星粒子池
+  const particles = [];
+  const colors = [
+    'rgba(255,255,255,', 'rgba(255,255,255,', 'rgba(255,255,255,',
+    'rgba(200,200,255,', 'rgba(0,255,255,', 'rgba(255,102,255,', 'rgba(255,215,0,'
+  ];
+
+  function spawnStar() {
+    // 從中心附近生成，帶隨機角度
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1.5 + Math.random() * 3;
+    return {
+      x: cx + (Math.random() - 0.5) * 20,
+      y: cy + (Math.random() - 0.5) * 20,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: 0.3 + Math.random() * 0.5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      life: 0,
+      trail: []
+    };
+  }
+
+  // 預先填一些星星在各種距離，避免開場空白
+  for (let i = 0; i < 80; i++) {
+    const p = spawnStar();
+    const age = Math.random() * 60;
+    for (let j = 0; j < age; j++) {
+      p.vx *= 1.025;
+      p.vy *= 1.025;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.size += 0.015;
+      p.life++;
+    }
+    if (p.x > -50 && p.x < w + 50 && p.y > -50 && p.y < h + 50) {
+      particles.push(p);
+    }
+  }
+
+  const startTime = Date.now();
+  let running = true;
+
+  // 加速感：隨時間增加速度倍率
+  function getSpeedMultiplier(elapsed) {
+    const progress = elapsed / duration;
+    // 先慢後快，最後減速 (像太空船加速再減速)
+    if (progress < 0.3) return 1 + progress * 4;        // 加速期
+    if (progress < 0.7) return 2.2 + (progress - 0.3) * 3; // 巡航加速
+    return 3.4 * (1 - (progress - 0.7) / 0.3 * 0.5);   // 減速期
+  }
+
+  function frame() {
+    if (!running) return;
+
+    const elapsed = Date.now() - startTime;
+    if (elapsed >= duration) {
+      // 淡出 canvas
+      gsap.to(canvas, {
+        opacity: 0,
+        duration: 0.6,
+        onComplete: () => {
+          canvas.remove();
+          if (onComplete) onComplete();
+        }
+      });
+      return;
+    }
+
+    const speedMul = getSpeedMultiplier(elapsed);
+    const progress = elapsed / duration;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 每幀生成新星星 (數量隨速度增加)
+    const spawnCount = Math.floor(2 + speedMul * 1.5);
+    for (let i = 0; i < spawnCount; i++) {
+      particles.push(spawnStar());
+    }
+
+    // 更新與繪製
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+
+      // 加速：離中心越遠飛越快 (透視加速)
+      p.vx *= 1.02 + speedMul * 0.008;
+      p.vy *= 1.02 + speedMul * 0.008;
+      p.x += p.vx * speedMul;
+      p.y += p.vy * speedMul;
+      p.size += 0.02 * speedMul;
+      p.life++;
+
+      // 儲存軌跡點 (光軌效果)
+      p.trail.push({ x: p.x, y: p.y });
+      if (p.trail.length > 6) p.trail.shift();
+
+      // 出界移除
+      if (p.x < -100 || p.x > w + 100 || p.y < -100 || p.y > h + 100) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      // 根據離中心距離計算亮度 (近=暗小, 遠=亮大)
+      const dx = p.x - cx;
+      const dy = p.y - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const alpha = Math.min(1, dist / 200);
+
+      // 畫光軌
+      if (p.trail.length > 1 && dist > 30) {
+        ctx.beginPath();
+        ctx.moveTo(p.trail[0].x, p.trail[0].y);
+        for (let j = 1; j < p.trail.length; j++) {
+          ctx.lineTo(p.trail[j].x, p.trail[j].y);
+        }
+        ctx.strokeStyle = p.color + (alpha * 0.3) + ')';
+        ctx.lineWidth = p.size * 0.5;
+        ctx.stroke();
+      }
+
+      // 畫星星本體
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + alpha + ')';
+      ctx.fill();
+
+      // 光暈
+      if (p.size > 1.5) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + (alpha * 0.15) + ')';
+        ctx.fill();
+      }
+    }
+
+    // 中心光暈 (前進的聚焦點)
+    const glowAlpha = 0.08 + speedMul * 0.03;
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120);
+    gradient.addColorStop(0, `rgba(200, 180, 255, ${glowAlpha})`);
+    gradient.addColorStop(0.5, `rgba(100, 80, 200, ${glowAlpha * 0.3})`);
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(cx - 120, cy - 120, 240, 240);
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+
+  return {
+    stop: () => { running = false; }
+  };
+}
+
+/**
+ * 觸發 confetti 特效
  */
 function triggerConfetti() {
   const colors = ['#a78bfa', '#818cf8', '#c4b5fd', '#fcd34d', '#ffffff', '#93c5fd', '#f472b6'];
 
-  // 單波中心爆發
   myConfetti({
     particleCount: 80,
     spread: 120,
@@ -195,7 +344,6 @@ function triggerConfetti() {
     drift: 0
   });
 
-  // 兩側爆發
   setTimeout(() => {
     myConfetti({
       particleCount: 30,
@@ -216,138 +364,106 @@ function triggerConfetti() {
       gravity: 0.5
     });
   }, 200);
-
-  // 持續灑落 (降低頻率，每 3 幀才噴一次)
-  const duration = 1800;
-  const end = Date.now() + duration;
-  let frameCount = 0;
-
-  const frame = () => {
-    frameCount++;
-    if (frameCount % 3 === 0) {
-      myConfetti({
-        particleCount: 1,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.5 },
-        colors: colors,
-        shapes: ['star']
-      });
-      myConfetti({
-        particleCount: 1,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.5 },
-        colors: colors,
-        shapes: ['star']
-      });
-    }
-
-    if (Date.now() < end) {
-      requestAnimationFrame(frame);
-    }
-  };
-
-  setTimeout(frame, 500);
 }
 
 /**
- * 場景轉換：用 flash overlay 做滑順過渡，不直接改 body 背景
+ * 場景轉換
  */
 function transitionToLetter() {
-  const tl = gsap.timeline();
-
   // 停止心跳動畫
   starHeart.style.animation = 'none';
 
   // 觸發愛心爆炸
   starHeart.classList.add('exploding');
 
-  // 螢幕震動 (輕微)
+  // 螢幕震動
   setTimeout(() => {
     scene1.classList.add('shaking');
   }, 150);
 
-  // Warp Speed 效果 - 星星從中心向外飛散
+  // 短暫延遲後，淡出原本的靜態星星
   setTimeout(() => {
-    starsContainer.classList.add('warp-speed');
-  }, 300);
+    gsap.to(starsContainer, {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.in'
+    });
+  }, 200);
 
-  // 用 overlay 做柔和閃光過渡 (不改 body background，避免生硬切換)
-  // 階段 1: 從透明漸變到半透明白 (像光芒擴散)
-  gsap.to(flashOverlay, {
-    opacity: 0.7,
-    background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(200,180,255,0.4) 50%, transparent 80%)',
-    duration: 0.4,
-    delay: 0.3,
-    ease: 'power2.in',
-    onComplete: () => {
-      // 階段 2: 白光退去，帶一絲暖粉色
-      gsap.to(flashOverlay, {
-        opacity: 0.3,
-        background: 'radial-gradient(circle, rgba(255,200,220,0.6) 0%, rgba(150,100,200,0.2) 50%, transparent 80%)',
-        duration: 0.6,
-        ease: 'power2.out',
-        onComplete: () => {
-          // 階段 3: 完全淡出
-          gsap.to(flashOverlay, {
-            opacity: 0,
-            duration: 0.8,
-            ease: 'power1.out'
-          });
-        }
-      });
-    }
-  });
+  // 愛心爆炸後 0.5s，啟動星空隧道
+  setTimeout(() => {
+    // 淡出 scene1 的提示文字等 UI
+    gsap.to(scene1, {
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power2.in'
+    });
 
-  // 場景切換：scene1 淡出 + scene2 淡入 有重疊，避免黑屏
-  tl.to(scene1, {
-    opacity: 0,
-    duration: 0.8,
-    delay: 0.8,
-    ease: 'power2.inOut',
-    onStart: () => {
-      // 在 scene1 還沒完全消失時就開始顯示 scene2
-      scene2.classList.add('active');
-      gsap.fromTo(scene2, {
-        opacity: 0
-      }, {
-        opacity: 1,
-        duration: 1.2,
-        ease: 'power2.inOut'
-      });
-    },
-    onComplete: () => {
-      scene1.classList.remove('active');
-      // 重新生成星星背景 (warp 結束後星星已消失)
-      regenerateStars();
-      enableIntenseShootingStars();
-    }
-  })
-    .add(() => {
-      animateLetterContent();
-    }, '-=0.4'); // 信件動畫提前開始，銜接更順
+    // 啟動星空隧道穿越效果 (持續 2.5 秒)
+    startWarpTunnel(2500, () => {
+      // 隧道結束後：顯示信件
+      showLetterScene();
+    });
+  }, 500);
+
+  // 隧道進行中，1.5s 後開始柔和的閃光過渡 (準備切場)
+  setTimeout(() => {
+    gsap.to(flashOverlay, {
+      opacity: 0.6,
+      background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(200,180,255,0.3) 50%, transparent 80%)',
+      duration: 0.8,
+      ease: 'power2.in',
+      onComplete: () => {
+        gsap.to(flashOverlay, {
+          opacity: 0.2,
+          background: 'radial-gradient(circle, rgba(255,200,220,0.5) 0%, rgba(150,100,200,0.15) 50%, transparent 80%)',
+          duration: 0.8,
+          ease: 'power2.out',
+          onComplete: () => {
+            gsap.to(flashOverlay, {
+              opacity: 0,
+              duration: 1,
+              ease: 'power1.out'
+            });
+          }
+        });
+      }
+    });
+  }, 2200);
 }
 
 /**
- * Warp 結束後重新生成新的星星，淡入顯示
+ * 隧道結束後顯示信件場景
  */
-function regenerateStars() {
-  starsContainer.classList.remove('warp-speed');
-  // 清除舊星星
+function showLetterScene() {
+  scene1.classList.remove('active');
+
+  // 重新生成靜態星空背景
   starsContainer.innerHTML = '';
-  // 重新生成
   createStars();
-  // 淡入
   gsap.fromTo(starsContainer, { opacity: 0 }, {
     opacity: 1,
     duration: 1.5,
     ease: 'power1.inOut'
   });
+
+  // 顯示 scene2
+  gsap.set(scene2, { opacity: 0 });
+  scene2.classList.add('active');
+  gsap.to(scene2, {
+    opacity: 1,
+    duration: 1,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      animateLetterContent();
+    }
+  });
+
+  enableIntenseShootingStars();
 }
 
 /**
- * 信件內容 - 流星滑入動畫
+ * 信件內容動畫
  */
 function animateLetterContent() {
   const tl = gsap.timeline();
@@ -403,7 +519,7 @@ function handleHeartClick() {
   transitionToLetter();
 }
 
-// 初始化星空背景
+// 初始化
 createStars();
 createHeartStars();
 startShootingStars();

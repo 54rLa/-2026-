@@ -52,13 +52,17 @@ birthday-surprise/
 - 中央顯示由 35 顆星星組成的愛心形狀 (心形方程式)
 - 愛心持續心跳動畫 + 下方「點我」提示文字 (3D 立體效果)
 
-### 點擊觸發: 銀河爆炸轉場
+### 點擊觸發: 銀河穿越轉場
 1. 愛心內縮 (implode) → 星星向四方爆射 (galaxyExplode)
 2. 衝擊波環 (shockwave) × 2 + 輕微螢幕震動 (screenShake)
-3. Flash overlay 柔和閃光過渡 (白光→暖粉→淡出，radial-gradient 實現)
-4. 星星從螢幕中心向外放射飛散 (warp-speed 衝入銀河效果)
-5. canvas-confetti 精簡版紙花爆發 (80+30+30 顆 + 低頻持續灑落)
-6. Scene1/Scene2 交叉淡入淡出 (重疊過渡，無黑屏)
+3. canvas-confetti 紙花爆發 (80+30+30 顆)
+4. 靜態星星淡出，啟動 **Canvas 星空隧道** (2.5 秒沉浸穿越銀河)
+   - 星星持續從螢幕中心生成、加速向外飛散
+   - 帶光軌拖尾、離中心越遠越亮越大 (透視效果)
+   - 速度曲線：慢啟動 → 加速巡航 → 減速停靠
+   - 中心紫色光暈聚焦點
+5. 隧道尾聲：Flash overlay 柔和閃光過渡 (白光→暖粉→淡出)
+6. 隧道結束：canvas 淡出移除，信件場景淡入
 7. 星星背景重新生成 + 淡入 + 進入密集流星模式
 
 ### Scene 2: 情書內容 (`#scene2`)
@@ -72,18 +76,19 @@ birthday-surprise/
 
 ## 核心檔案詳解
 
-### `main.js` (~433 行)
+### `main.js` (~549 行)
 
 | 函式 | 功能 |
 |------|------|
 | `createHeartStars()` | 用心形方程式生成 35+12 顆星星排列成愛心 |
-| `createStars()` | 生成 150 顆隨機背景星星，含 warp 方向向量計算 |
+| `createStars()` | 生成 150 顆隨機背景星星 |
 | `createShootingStar()` | 建立單顆流星 DOM 元素，1.2s 後自動移除 |
 | `startShootingStars()` | 定時產生流星 (普通 3-8s / 密集 0.2-2s) |
 | `enableIntenseShootingStars()` | 開啟密集流星模式，立即發射 3 顆 |
-| `triggerConfetti()` | 精簡版 confetti (中心+兩側+低頻灑落) |
-| `transitionToLetter()` | 場景轉換 (flash overlay 閃光 + 交叉淡入淡出) |
-| `regenerateStars()` | warp 結束後清除舊星星，重新生成並淡入 |
+| `startWarpTunnel(duration, onComplete)` | Canvas 星空隧道 (粒子系統 + 光軌 + 速度曲線) |
+| `triggerConfetti()` | confetti 紙花 (中心+兩側爆發) |
+| `transitionToLetter()` | 場景轉換 (爆炸→隧道→閃光→信件) |
+| `showLetterScene()` | 隧道結束後顯示信件、重建星空 |
 | `animateLetterContent()` | 信件文字流星滑入動畫 |
 | `handleHeartClick()` | 點擊事件，防重複觸發 |
 
