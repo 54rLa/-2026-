@@ -386,7 +386,7 @@ function transitionToLetter() {
 }
 
 /**
- * 隧道結束後顯示信件場景
+ * 隧道結束後顯示信件場景 - 星星變卡片轉場動畫
  */
 function showLetterScene() {
   scene1.classList.remove('active');
@@ -400,19 +400,122 @@ function showLetterScene() {
     ease: 'power1.inOut'
   });
 
-  // 顯示 scene2
+  enableIntenseShootingStars();
+
+  // 準備 scene2（先設為透明，取得 letter-content 尺寸用）
   gsap.set(scene2, { opacity: 0 });
   scene2.classList.add('active');
-  gsap.to(scene2, {
-    opacity: 1,
+
+  // 等星空淡入一段時間後，開始星星變卡片動畫
+  setTimeout(() => {
+    startFocusStarAnimation();
+  }, 500);
+}
+
+/**
+ * 星星變卡片的動畫流程
+ */
+function startFocusStarAnimation() {
+  // 動態建立 focus-star
+  const focusStar = document.createElement('div');
+  focusStar.className = 'focus-star';
+
+  // 隨機位置（偏中間區域）
+  const startX = 30 + Math.random() * 40; // 30%~70% 的範圍
+  const startY = 20 + Math.random() * 30; // 20%~50% 的範圍
+  focusStar.style.left = `${startX}vw`;
+  focusStar.style.top = `${startY}vh`;
+
+  document.body.appendChild(focusStar);
+
+  // 取得 letter-content 的實際尺寸和位置
+  const letterContent = document.querySelector('.letter-content');
+  const letterRect = letterContent.getBoundingClientRect();
+
+  // 計算畫面中央位置
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  // GSAP Timeline 串聯所有階段
+  const tl = gsap.timeline();
+
+  // Phase 1 (1s)：focus-star 開始閃爍發光、微微放大，周圍星星亮度降低
+  tl.to(focusStar, {
+    scale: 2.5,
+    boxShadow: '0 0 20px 8px rgba(200, 180, 255, 1), 0 0 40px 16px rgba(180, 160, 255, 0.5)',
+    duration: 1,
+    ease: 'power1.inOut',
+    repeat: 1,
+    yoyo: true,
+    repeatDelay: 0,
+  }, 0);
+
+  // Phase 1 同步：其他星星變暗
+  tl.to(starsContainer, {
+    opacity: 0.3,
+    duration: 1,
+    ease: 'power2.inOut'
+  }, 0);
+
+  // Phase 2 (1s)：focus-star 移動到畫面正中央 + 持續放大
+  tl.to(focusStar, {
+    left: centerX,
+    top: centerY,
+    xPercent: -50,
+    yPercent: -50,
+    scale: 4,
+    boxShadow: '0 0 30px 12px rgba(200, 180, 255, 1), 0 0 60px 24px rgba(180, 160, 255, 0.6)',
     duration: 1,
     ease: 'power2.inOut',
-    onComplete: () => {
-      animateLetterContent();
-    }
-  });
+  }, 1.2);
 
-  enableIntenseShootingStars();
+  // Phase 2 同步：星星逐漸恢復亮度
+  tl.to(starsContainer, {
+    opacity: 0.7,
+    duration: 1.5,
+    ease: 'power1.inOut'
+  }, 1.5);
+
+  // Phase 3 (1.2s)：focus-star 從圓形變成卡片形狀
+  tl.to(focusStar, {
+    width: letterRect.width,
+    height: letterRect.height,
+    left: letterRect.left + letterRect.width / 2,
+    top: letterRect.top + letterRect.height / 2,
+    borderRadius: '20px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 0 30px 10px rgba(180, 160, 255, 0.3), 0 0 60px 20px rgba(150, 130, 220, 0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)',
+    scale: 1,
+    duration: 1.2,
+    ease: 'power2.inOut',
+  }, 2.4);
+
+  // Phase 3 同步：星星恢復完全亮度
+  tl.to(starsContainer, {
+    opacity: 1,
+    duration: 0.8,
+    ease: 'power1.inOut'
+  }, 2.8);
+
+  // Phase 4：移除 focus-star，顯示真正的 scene2，觸發內容動畫
+  tl.to(focusStar, {
+    opacity: 0,
+    duration: 0.4,
+    ease: 'power1.inOut',
+  }, 3.8);
+
+  tl.to(scene2, {
+    opacity: 1,
+    duration: 0.4,
+    ease: 'power1.inOut',
+  }, 3.8);
+
+  tl.add(() => {
+    focusStar.remove();
+    animateLetterContent();
+  }, 4.2);
 }
 
 /**

@@ -636,6 +636,18 @@ body::before {
   }
 }
 
+/* Focus Star - 星星變卡片轉場 */
+.focus-star {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 10;
+  box-shadow: 0 0 10px 4px rgba(200, 180, 255, 0.8);
+  pointer-events: none;
+}
+
 /* Scene 2 & 3: Letter */
 .letter-container {
   width: 100%;
